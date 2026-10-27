@@ -42,7 +42,7 @@ The FEVER corpus is **not** the full 5.4M-page dump: it is every page cited as e
 |---|---|---|---|---|---|
 | TF-IDF + LR (claim only) | FEVER paper_dev (full) | 9,999 | 0.569 | 0.568 | n/a |
 | TF-IDF + LR (claim only) | FEVER dev_200 | 200 | 0.504 | 0.500 | n/a |
-| Retrieval + NLI pipeline | FEVER dev_200 | 200 | *running* | | |
+| Retrieval + NLI pipeline | FEVER dev_200 | 200 | *not yet measured* (~40 s/claim on a laptop CPU; run the FEVER eval command above on a GPU) | | |
 | Retrieval + NLI pipeline | Demo, overall | 27 | 0.825 | 0.852 | 1.0 |
 | Retrieval + NLI pipeline | Demo, English | 15 | 0.855 | 0.867 | 1.0 |
 | Retrieval + NLI pipeline | Demo, Hindi → English evidence | 6 | 1.000 | 1.000 | 1.0 |
