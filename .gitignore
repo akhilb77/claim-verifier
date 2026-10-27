@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+# FEVER downloads and built artifacts (~2 GB) — recreate with fever_prep.py
+data/fever/
+*.emb.pt
+results/*.log

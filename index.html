@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim Verifier</title>
+<style>
+  :root { --bg:#f7f7f5; --card:#fff; --ink:#1d1d1b; --muted:#666; --line:#ddd;
+          --sup:#1f7a3a; --ref:#b3261e; --nee:#8a6d00; --accent:#2b4fd8; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#141414; --card:#1e1e1e; --ink:#eee; --muted:#aaa; --line:#333;
+            --sup:#5fd27f; --ref:#ff8a80; --nee:#f3d04f; --accent:#8fa8ff; }
+  }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, sans-serif }
+  main { max-width:760px; margin:0 auto; padding:32px 16px }
+  h1 { margin:0 0 4px; font-size:1.6rem }
+  .sub { color:var(--muted); margin:0 0 24px }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px; margin-bottom:16px }
+  textarea { width:100%; min-height:100px; font:inherit; padding:10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); resize:vertical }
+  .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:12px }
+  select, button { font:inherit; padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink) }
+  button.primary { background:var(--accent); color:#fff; border:0 }
+  button:disabled { opacity:.6 }
+  .link { background:none; border:0; color:var(--accent); padding:0; cursor:pointer; text-decoration:underline }
+  .count { margin-left:auto; color:var(--muted); font-size:.85rem }
+  .error { color:var(--ref); margin-top:10px }
+  .verdict { font-size:1.4rem; font-weight:700 }
+  .SUPPORTED { color:var(--sup) } .REFUTED { color:var(--ref) } .NOT_ENOUGH_EVIDENCE { color:var(--nee) }
+  .bar { height:8px; background:var(--line); border-radius:4px; overflow:hidden; max-width:300px }
+  .bar > div { height:100%; background:currentColor }
+  .warn { border-left:4px solid var(--nee); padding:8px 12px; background:var(--bg); margin:12px 0 }
+  ol { padding-left:20px } li { margin-bottom:14px }
+  .meta { color:var(--muted); font-size:.85rem }
+  a { color:var(--accent) }
+  .tag { display:inline-block; font-size:.75rem; padding:1px 8px; border-radius:10px; border:1px solid currentColor; margin-left:6px }
+  .entailment { color:var(--sup) } .contradiction { color:var(--ref) } .neutral { color:var(--muted) }
+  .note { color:var(--muted); font-size:.85rem }
+  [hidden] { display:none !important }
+</style>
+</head>
+<body>
+<main>
+  <h1>Claim Verifier</h1>
+  <p class="sub">Paste a factual claim. We search a reference corpus for evidence and estimate whether it supports or contradicts the claim.</p>
+
+  <form id="form" class="card">
+    <label for="claim"><strong>Claim</strong></label>
+    <textarea id="claim" maxlength="500" placeholder="e.g. The Great Wall of China is visible from space."></textarea>
+    <div class="row">
+      <label>Language
+        <select id="lang">
+          <option value="">Auto</option><option value="en">English</option>
+          <option value="hi">Hindi</option><option value="es">Spanish</option><option value="other">Other</option>
+        </select>
+      </label>
+      <button type="button" class="link" id="sample">Try a sample claim</button>
+      <span class="count" id="count">0 / 500</span>
+    </div>
+    <div class="row"><button class="primary" id="go" type="submit">Verify claim</button></div>
+    <div class="error" id="err" role="alert"></div>
+  </form>
+
+  <section id="result" class="card" hidden aria-live="polite"></section>
+
+  <p class="note">Verdicts are automated model predictions based only on a limited reference corpus. They are not proof of truth or falsehood and do not replace professional fact-checking.</p>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const LABEL = { SUPPORTED: "✔ Supported", REFUTED: "✘ Refuted", NOT_ENOUGH_EVIDENCE: "? Not enough evidence" };
+const REL = { entailment: "supports", contradiction: "contradicts", neutral: "neutral" };
+const SAMPLES = ["The Great Wall of China can be seen from space with the naked eye.",
+  "Mars has two moons.", "5G नेटवर्क से कोरोना वायरस फैलता है।", "Los antibióticos curan el resfriado común."];
+let si = 0;
+
+$("claim").oninput = () => $("count").textContent = `${$("claim").value.length} / 500`;
+$("sample").onclick = () => { $("claim").value = SAMPLES[si++ % SAMPLES.length]; $("claim").oninput(); };
+
+function el(tag, attrs = {}, ...kids) {
+  const e = Object.assign(document.createElement(tag), attrs);
+  e.append(...kids.filter(k => k != null));
+  return e;
+}
+
+$("form").onsubmit = async ev => {
+  ev.preventDefault();
+  const claim = $("claim").value.trim();
+  $("err").textContent = "";
+  if (!claim) { $("err").textContent = "Please enter a claim to verify."; return; }
+  $("go").disabled = true; $("go").textContent = "Checking evidence…";
+  try {
+    const res = await fetch("/api/v1/verify", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ claim, language: $("lang").value || null }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    render(data);
+  } catch (e) {
+    $("result").hidden = true;
+    $("err").textContent = e.message === "Failed to fetch" ? "Could not reach the server. Please try again." : e.message;
+  } finally {
+    $("go").disabled = false; $("go").textContent = "Verify claim";
+  }
+};
+
+function render(d) {
+  const r = $("result");
+  r.replaceChildren(...[
+    el("p", { className: "meta" }, "Claim"),
+    el("p", {}, el("strong", { textContent: d.claim })),
+    el("p", { className: "meta" }, "Predicted verdict"),
+    el("div", { className: `verdict ${d.verdict}`, textContent: LABEL[d.verdict] }),
+    d.confidence != null ? el("div", { className: d.verdict },
+      el("p", { className: "meta", textContent: `Model confidence: ${Math.round(d.confidence * 100)}% (not a probability that the claim is true)` }),
+      el("div", { className: "bar" }, el("div", { style: `width:${d.confidence * 100}%` }))) : null,
+    el("p", { textContent: d.message }),
+    d.warning ? el("div", { className: "warn", textContent: "⚠ " + d.warning }) : null,
+    d.verdict === "NOT_ENOUGH_EVIDENCE" && !d.warning ? el("div", { className: "warn", textContent: "⚠ Inconclusive result — treat this claim as unverified." }) : null,
+    el("h3", { textContent: `Retrieved evidence (${d.evidence.length})` }),
+    d.evidence.length ? el("ol", {}, ...d.evidence.map(e => el("li", {},
+      el("div", { textContent: e.text }),
+      el("div", { className: "meta" },
+        /^https?:\/\//.test(e.source_url || "") ? el("a", { href: e.source_url, target: "_blank", rel: "noopener", textContent: e.source_title }) : e.source_title,
+        ` · relevance ${e.relevance_score.toFixed(2)}`,
+        el("span", { className: `tag ${e.relation}`, textContent: `${REL[e.relation]} ${Math.round(e.relation_score * 100)}%` })),
+      e.provenance ? el("div", { className: "meta", textContent: e.provenance }) : null)))
+      : el("p", { className: "meta", textContent: "No relevant passages were found in the reference corpus." }),
+    el("button", { type: "button", textContent: "Verify another claim",
+      onclick: () => { r.hidden = true; $("claim").value = ""; $("claim").oninput(); $("claim").focus(); } }),
+  ].filter(Boolean));
+  r.hidden = false;
+  r.scrollIntoView({ behavior: "smooth" });
+}
+</script>
+</body>
+</html>

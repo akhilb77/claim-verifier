@@ -1,0 +1,27 @@
+{"claim": "The Earth revolves around the Sun.", "language": "en", "label": "SUPPORTED", "gold": "p01"}
+{"claim": "Mount Everest is the tallest mountain on Earth above sea level.", "language": "en", "label": "SUPPORTED", "gold": "p03"}
+{"claim": "The Great Wall of China can be easily seen from space with the naked eye.", "language": "en", "label": "REFUTED", "gold": "p04"}
+{"claim": "Water boils at 100 degrees Celsius at sea-level pressure.", "language": "en", "label": "SUPPORTED", "gold": "p05"}
+{"claim": "The MMR vaccine causes autism.", "language": "en", "label": "REFUTED", "gold": "p06"}
+{"claim": "The Taj Mahal is located in Delhi.", "language": "en", "label": "REFUTED", "gold": "p07"}
+{"claim": "Python was created by Guido van Rossum.", "language": "en", "label": "SUPPORTED", "gold": "p08"}
+{"claim": "Lightning never strikes the same place twice.", "language": "en", "label": "REFUTED", "gold": "p09"}
+{"claim": "Goldfish only have a three-second memory.", "language": "en", "label": "REFUTED", "gold": "p10"}
+{"claim": "Mars has two moons.", "language": "en", "label": "SUPPORTED", "gold": "p13"}
+{"claim": "Antibiotics can cure the common cold.", "language": "en", "label": "REFUTED", "gold": "p15"}
+{"claim": "Einstein won the Nobel Prize for the theory of relativity.", "language": "en", "label": "REFUTED", "gold": "p19"}
+{"claim": "5G towers spread the coronavirus.", "language": "en", "label": "REFUTED", "gold": "p20"}
+{"claim": "The Eiffel Tower was painted red in 2023.", "language": "en", "label": "NOT_ENOUGH_EVIDENCE", "gold": null}
+{"claim": "Bananas contain more potassium than any other fruit.", "language": "en", "label": "NOT_ENOUGH_EVIDENCE", "gold": null}
+{"claim": "पृथ्वी सूर्य की परिक्रमा करती है।", "language": "hi", "label": "SUPPORTED", "gold": "p01"}
+{"claim": "भारत को 15 अगस्त 1947 को स्वतंत्रता मिली।", "language": "hi", "label": "SUPPORTED", "gold": "p14"}
+{"claim": "ताजमहल दिल्ली में स्थित है।", "language": "hi", "label": "REFUTED", "gold": "p07"}
+{"claim": "5G नेटवर्क से कोरोना वायरस फैलता है।", "language": "hi", "label": "REFUTED", "gold": "p20"}
+{"claim": "मनुष्य अपने मस्तिष्क का केवल 10 प्रतिशत उपयोग करते हैं।", "language": "hi", "label": "REFUTED", "gold": "p16"}
+{"claim": "मुंबई में हर साल बर्फ गिरती है।", "language": "hi", "label": "NOT_ENOUGH_EVIDENCE", "gold": null}
+{"claim": "El Sahara es el desierto cálido más grande del mundo.", "language": "es", "label": "SUPPORTED", "gold": "p17"}
+{"claim": "El océano Pacífico es el océano más grande de la Tierra.", "language": "es", "label": "SUPPORTED", "gold": "p18"}
+{"claim": "La Luna es el único satélite natural de la Tierra.", "language": "es", "label": "SUPPORTED", "gold": "p02"}
+{"claim": "Los antibióticos curan el resfriado común.", "language": "es", "label": "REFUTED", "gold": "p15"}
+{"claim": "La mayor parte de la selva amazónica está en Argentina.", "language": "es", "label": "REFUTED", "gold": "p11"}
+{"claim": "Madrid tiene la población más grande de Europa.", "language": "es", "label": "NOT_ENOUGH_EVIDENCE", "gold": null}
